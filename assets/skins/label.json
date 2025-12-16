@@ -1,0 +1,26 @@
+{
+com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	lexend: {
+		file: lexend.fnt
+		scaledSize: 40
+		markupEnabled: false
+		flip: false
+	}
+}
+com.badlogic.gdx.graphics.Color: {
+	RGBA_149_149_149_1: {
+      "r": 0.75686276, "g": 0.75686276, "b": 0.75686276, "a": 1
+    }
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: lexend
+		fontColor: RGBA_149_149_149_1
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+}
