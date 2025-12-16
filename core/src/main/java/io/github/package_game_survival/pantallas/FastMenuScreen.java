@@ -34,42 +34,50 @@ public class FastMenuScreen implements Screen {
         stage = new Stage(game.getViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // 1. REANUDAR
+        // 1. BOTÓN REANUDAR
         TextButtonStandard reanudarButton = new TextButtonStandard("Reanudar");
         reanudarButton.setClickListener(() -> {
+            // No detenemos el viento aquí para que la atmósfera siga al volver al juego
             game.setScreen(gameScreen);
             gameScreen.getCamara().zoom = 0.6f;
         });
 
-        // 2. REINICIAR (Mismo Personaje)
-        TextButtonStandard resetButton = new TextButtonStandard("Reiniciar (Mismo Pj)");
+        // 2. BOTÓN REINICIAR
+        TextButtonStandard resetButton = new TextButtonStandard("Reiniciar");
         resetButton.setClickListener(() -> {
-            // Recuperamos el personaje actual
+            // CORRECCIÓN: Detener sonido PRIMERO
+            AudioManager.getControler().stopSound("viento");
+
             CharacterSelectionScreen.TipoClase tipo = gameScreen.getTipoClaseActual();
-
-            // Creamos un nuevo juego con ese mismo tipo
             game.setScreen(new GameScreen(game, tipo));
-
             dispose();
-            gameScreen.dispose();
         });
 
-        // 3. CAMBIAR PERSONAJE
+        // 3. BOTÓN CAMBIAR PERSONAJE
         TextButtonStandard cambiarPjButton = new TextButtonStandard("Cambiar Personaje");
         cambiarPjButton.setClickListener(() -> {
+            // CORRECCIÓN: Detener sonido PRIMERO
+            AudioManager.getControler().stopSound("viento");
+
             game.setScreen(new CharacterSelectionScreen(game));
-            dispose();
             gameScreen.dispose();
+            dispose();
         });
 
-        // 4. VOLVER AL MENU
+        // 4. BOTÓN VOLVER AL MENU
         TextButtonStandard volverMenuButton = new TextButtonStandard("Volver al Menu");
         volverMenuButton.setClickListener(() -> {
+            // CORRECCIÓN: Detener sonido PRIMERO
+            AudioManager.getControler().stopSound("viento");
+
             game.setScreen(new MenuScreen(game));
+
+            // Música del menú
             AudioManager.getControler().changeMusic("menuMusic", PathManager.MENU_MUSIC, true);
             AudioManager.getControler().setVolume(20);
-            dispose();
+
             gameScreen.dispose();
+            dispose();
         });
 
         Table table = new Table();
@@ -99,6 +107,7 @@ public class FastMenuScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             game.setScreen(gameScreen);
             gameScreen.getCamara().zoom = 0.6f;
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         }
     }
 

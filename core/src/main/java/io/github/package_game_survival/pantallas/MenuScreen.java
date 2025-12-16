@@ -46,7 +46,6 @@ public class MenuScreen implements Screen {
         TextButtonStandard opcionesButton = new TextButtonStandard("Opciones");
         opcionesButton.setClickListener(() -> {
             game.setScreen(new OptionsScreen(game));
-            // NO dispose() aquí tampoco
         });
 
         TextButtonStandard salirButton = new TextButtonStandard("Salir");

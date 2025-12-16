@@ -3,7 +3,6 @@ package io.github.package_game_survival.entidades.seres.jugadores;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,9 +20,9 @@ import io.github.package_game_survival.habilidades.AtaqueAranazo;
 import io.github.package_game_survival.interfaces.IMundoJuego;
 import io.github.package_game_survival.managers.Audio.AudioManager;
 import io.github.package_game_survival.managers.GestorTiempo;
+import io.github.package_game_survival.managers.PathManager;
 import io.github.package_game_survival.standards.TooltipStandard;
 
-// AHORA ES ABSTRACTA
 public abstract class Jugador extends SerVivo {
 
     private final Array<Objeto> inventario = new Array<>();
@@ -47,12 +46,14 @@ public abstract class Jugador extends SerVivo {
     private float timerClickDerecho = 0f;
     private final float INTERVALO_CLICK_DERECHO = 0.2f;
 
-    // CONSTRUCTOR MODIFICADO: Recibe stats y el ATLAS específico
     public Jugador(String nombre, float x, float y, int vidaMax, int velocidad, int danioBase, TextureAtlas atlas) {
         super(nombre, x, y, 24, 40, vidaMax, vidaMax, velocidad, danioBase, atlas);
-        this.hitbox = new Rectangle(x, y, 1, 1);
 
-        // La habilidad se define en las clases hijas
+        AudioManager.getControler().loadSound("agarrar", PathManager.GRAB_OBJECT_SOUND);
+
+        this.hitbox = new Rectangle(x, y, 14, 12);
+        this.setSize(24, 40);
+        this.topeVidaPermitida = 200;
     }
 
     public void mejorarRangoAtaque(float rangoExtra, float areaExtra) {
@@ -77,11 +78,7 @@ public abstract class Jugador extends SerVivo {
 
     @Override
     public void agregarAlMundo(IMundoJuego mundo) {
-        setMundo(mundo);
-        mundo.agregarActor(this);
-        if (mundo instanceof Escenario) {
-            instanciarTooltip(new TooltipStandard(getName(), this, (Escenario) mundo));
-        }
+        super.agregarAlMundo(mundo);
     }
 
     @Override
@@ -109,8 +106,6 @@ public abstract class Jugador extends SerVivo {
 
         moverse(delta, cam);
         revisarChoqueEnemigo(delta);
-
-        if (getTooltip() != null) getTooltip().actualizarPosicion();
     }
 
     @Override
@@ -130,7 +125,10 @@ public abstract class Jugador extends SerVivo {
             tempVecInput.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             cam.unproject(tempVecInput);
             Vector2 destinoMouse = new Vector2(tempVecInput.x, tempVecInput.y);
-            if (mundo != null) atacar(destinoMouse, mundo);
+
+            if (mundo != null) {
+                atacar(destinoMouse, mundo);
+            }
         }
     }
 
@@ -194,6 +192,7 @@ public abstract class Jugador extends SerVivo {
 
         boolean clickDerechoPresionado = Gdx.input.isButtonPressed(Input.Buttons.RIGHT);
         boolean clickDerechoJustoAhora = Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT);
+
         if (clickDerechoPresionado) {
             timerClickDerecho += delta;
             if (clickDerechoJustoAhora || timerClickDerecho >= INTERVALO_CLICK_DERECHO) {
@@ -201,9 +200,13 @@ public abstract class Jugador extends SerVivo {
                 tempVecInput.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                 cam.unproject(tempVecInput);
                 tempDestino.set(tempVecInput.x, tempVecInput.y);
+
                 if (mundo != null) {
-                    if (estrategia instanceof EstrategiaMoverAPunto) ((EstrategiaMoverAPunto) estrategia).setDestino(tempDestino);
-                    else estrategia = new EstrategiaMoverAPunto(tempDestino, mundo.getBloques());
+                    if (estrategia instanceof EstrategiaMoverAPunto) {
+                        ((EstrategiaMoverAPunto) estrategia).setDestino(tempDestino);
+                    } else {
+                        estrategia = new EstrategiaMoverAPunto(tempDestino, mundo.getBloques());
+                    }
                 }
             }
         } else {
@@ -234,11 +237,9 @@ public abstract class Jugador extends SerVivo {
 
         } else if (estrategia != null) {
             estrategia.actualizar(this, delta);
-            if (mundo != null && colisionaConBloqueNoTransitable()) {
-                setPosition(oldX, oldY);
+            if (estrategia.haTerminado(this)) {
                 estrategia = null;
             }
-            if (estrategia != null && estrategia.haTerminado(this)) estrategia = null;
         }
         actualizarAnimacion(oldX, oldY);
     }
@@ -275,11 +276,22 @@ public abstract class Jugador extends SerVivo {
     @Override public void setPosition(float x, float y) { super.setPosition(x, y); }
     @Override public void moveBy(float x, float y) { super.moveBy(x, y); }
 
+    // --- CAMBIO CLAVE: HITBOX REDUCIDA ---
     @Override public Rectangle getRectColision() {
-        float size = 32f;
-        float x = getX() + (getWidth() - size) / 2f;
+        // Hacemos la hitbox más pequeña (14x12) para que solo ocupe los pies
+        float anchoHitbox = 14f;
+        float altoHitbox = 12f;
+
+        // Centramos la hitbox horizontalmente respecto al sprite
+        float offsetX = (getWidth() - anchoHitbox) / 2f;
+
+        // La Y se queda en 0 (pies)
+        float x = getX() + offsetX;
         float y = getY();
-        hitbox.set(x, y, size, size);
+
+        if (hitbox != null) {
+            hitbox.set(x, y, anchoHitbox, altoHitbox);
+        }
         return hitbox;
     }
 
@@ -303,6 +315,7 @@ public abstract class Jugador extends SerVivo {
                     }
                     continue;
                 }
+                AudioManager.getControler().playSound("agarrar");
                 adquirirObjeto(objeto);
                 objetosMundo.removeIndex(i);
             }

@@ -51,4 +51,9 @@ public class TextButtonStandard extends TextButton {
             }
         });
     }
+
+    public void setEscalaFuente(float escala){
+        this.setScale(escala);
+    }
+
 }

@@ -2,6 +2,7 @@ package io.github.package_game_survival.pantallas;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer; // CLAVE PARA TOOLTIPS
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -36,6 +37,7 @@ public class GameScreen implements Screen {
 
     private final MyGame game;
     private final FastMenuScreen fm;
+
     private final Stage stageMundo;
     private final Stage stageUI;
     private final FitViewport viewportUI;
@@ -43,6 +45,10 @@ public class GameScreen implements Screen {
     private final Jugador jugador;
     private final Escenario escenario;
     private final OrthographicCamera camara;
+
+    // --- INPUT MULTIPLEXER ---
+    private final InputMultiplexer inputMultiplexer;
+
     private final Vector3 tempVec = new Vector3();
     private Animation<TextureRegion> clickAnimation;
     private LabelStandard labelFinJuego, labelVolverMenu;
@@ -51,7 +57,6 @@ public class GameScreen implements Screen {
     private static float ANCHO_MUNDO;
     private static float ALTO_MUNDO;
 
-    // --- GUARDAMOS LA CLASE ELEGIDA ---
     private final CharacterSelectionScreen.TipoClase tipoClaseActual;
 
     public GameScreen(MyGame game, CharacterSelectionScreen.TipoClase tipoClase) {
@@ -64,9 +69,14 @@ public class GameScreen implements Screen {
         this.stageMundo = new Stage(game.getViewport());
         this.viewportUI = new FitViewport(ANCHO_MUNDO, ALTO_MUNDO);
         this.stageUI = new Stage(viewportUI);
-        Gdx.input.setInputProcessor(stageUI);
 
-        // INSTANCIACIÓN DINÁMICA
+        // CONFIGURACIÓN DE INPUT PARA QUE FUNCIONEN LOS TOOLTIPS Y LA UI
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stageUI);    // Prioridad 1: Botones de UI
+        inputMultiplexer.addProcessor(stageMundo); // Prioridad 2: Actores del mundo (Tooltips)
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
+        // Instanciación del Jugador
         float startX = ANCHO_MUNDO / 2;
         float startY = ALTO_MUNDO / 2;
 
@@ -89,7 +99,6 @@ public class GameScreen implements Screen {
         cargarEfectosVisuales();
     }
 
-    // --- GETTER PARA REINICIAR CON EL MISMO PJ ---
     public CharacterSelectionScreen.TipoClase getTipoClaseActual() {
         return tipoClaseActual;
     }
@@ -140,6 +149,7 @@ public class GameScreen implements Screen {
         } else if (juegoTerminado) {
             jugador.setEstrategia(null);
         } else {
+            // LÓGICA DE MOVIMIENTO MANUAL (POLLING) - NO SE VE AFECTADA POR EL MULTIPLEXER
             if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
                 tempVec.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                 camara.unproject(tempVec);
@@ -195,7 +205,12 @@ public class GameScreen implements Screen {
         AudioManager.getControler().stopMusic();
     }
 
-    @Override public void show() { Gdx.input.setInputProcessor(stageUI); BrilloManager.redimensionar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); }
+    @Override public void show() {
+        // Restaurar el multiplexer al volver del menú
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        BrilloManager.redimensionar(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}

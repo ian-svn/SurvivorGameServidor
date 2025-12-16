@@ -10,12 +10,13 @@ import io.github.package_game_survival.managers.PathManager;
 public class Guerrero extends Jugador {
 
     public Guerrero(float x, float y) {
-        // Stats originales + Atlas de Jugador (Player)
-        super("Guerrero", x, y, 1000, 120, 20,
+        super("Guerrero", x, y, 120, 80, 105,
             Assets.get(PathManager.PLAYER_ATLAS, TextureAtlas.class));
 
-        // Habilidad original (Corta distancia, ancha)
-        this.habilidadPrincipal = new AtaqueAranazo(0.5f, 0.1f, 25, 60f,
+        // BALANCE: Límite de daño 80
+        this.limiteDanio = 100;
+
+        this.habilidadPrincipal = new AtaqueAranazo(0.4f, 0.1f, getDanio(), 60f,
             40f, SerVivo.class, Color.BLUE);
     }
 }

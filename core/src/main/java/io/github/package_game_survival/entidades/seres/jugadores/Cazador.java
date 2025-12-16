@@ -10,14 +10,13 @@ import io.github.package_game_survival.managers.PathManager;
 public class Cazador extends Jugador {
 
     public Cazador(float x, float y) {
-        // Stats: Menos vida, Más velocidad, Menos daño + Atlas de Arquero
-        // ¡IMPORTANTE! Asegúrate de que el archivo 'atlases/archer.atlas' exista.
-        // Si no existe aún, usa PLAYER_ATLAS temporalmente.
-        super("Arquero", x, y, 600, 160, 12,
+        super("Cazador", x, y, 100, 100, 15,
             Assets.get(PathManager.CAZADOR_ATLAS, TextureAtlas.class));
 
-        // Habilidad: Larga distancia, fina, verde
-        this.habilidadPrincipal = new AtaqueAranazo(0.4f, 0.1f, 15, 250f,
+        // BALANCE: Límite de daño 60
+        this.limiteDanio = 65;
+
+        this.habilidadPrincipal = new AtaqueAranazo(0.6f, 0.1f, getDanio(), 100f,
             10f, SerVivo.class, Color.GREEN);
     }
 }
