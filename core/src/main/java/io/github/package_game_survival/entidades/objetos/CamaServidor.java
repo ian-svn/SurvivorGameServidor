@@ -9,16 +9,10 @@ public class CamaServidor extends ObjetoServidor {
         super(x, y, 32, 64);
     }
 
-    /**
-     * Dormir: avanza el tiempo hasta la noche
-     */
     public void usar(JugadorServidor jugador, EscenarioServidor escenario) {
         escenario.dormirHastaLaNoche();
     }
 
-    /**
-     * La cama NO es un item
-     */
     @Override
     public ItemServidor toItem() {
         return null;

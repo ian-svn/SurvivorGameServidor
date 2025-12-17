@@ -33,23 +33,34 @@ public abstract class SerVivoServidor {
     protected float areaAtaque;
 
     // ======================
+    // ESTADOS
+    // ======================
+    protected boolean sintiendoCalor = true;
+
+    // ======================
+    // INPUT / DIRECCIÓN
+    // ======================
+    protected int dirX = 0;
+    protected int dirY = 0;
+
+    // ======================
     // COLISIÓN
     // ======================
     protected final Rectangle rectColision;
 
     // ======================
-    // CONSTRUCTOR CORRECTO
+    // CONSTRUCTOR
     // ======================
     public SerVivoServidor(
-        int id,
-        String nombre,
-        float x,
-        float y,
-        int vidaMax,
-        float velocidad,
-        int danio,
-        float anchoColision,
-        float altoColision
+            int id,
+            String nombre,
+            float x,
+            float y,
+            int vidaMax,
+            float velocidad,
+            int danio,
+            float anchoColision,
+            float altoColision
     ) {
         this.id = id;
         this.nombre = nombre;
@@ -72,12 +83,29 @@ public abstract class SerVivoServidor {
     public abstract void update(float delta, Object mundo);
 
     // ======================
-    // MOVIMIENTO
+    // MOVIMIENTO DIRECTO
     // ======================
     public void mover(float nx, float ny) {
         x = nx;
         y = ny;
         rectColision.setPosition(nx, ny);
+    }
+
+    // ======================
+    // MOVIMIENTO POR DIRECCIÓN (INPUT LEGACY)
+    // ======================
+    public void setDireccion(int dx, int dy) {
+        this.dirX = dx;
+        this.dirY = dy;
+    }
+
+    protected void aplicarMovimientoDireccion(float delta) {
+        if (dirX == 0 && dirY == 0) return;
+
+        float nx = x + dirX * velocidad * delta;
+        float ny = y + dirY * velocidad * delta;
+
+        mover(nx, ny);
     }
 
     // ======================
@@ -112,6 +140,17 @@ public abstract class SerVivoServidor {
     }
 
     // ======================
+    // ESTADOS AMBIENTALES
+    // ======================
+    public boolean isSintiendoCalor() {
+        return sintiendoCalor;
+    }
+
+    public void setSintiendoCalor(boolean valor) {
+        this.sintiendoCalor = valor;
+    }
+
+    // ======================
     // GETTERS
     // ======================
     public int getId() { return id; }
@@ -124,8 +163,8 @@ public abstract class SerVivoServidor {
 
     public Vector2 getCentro() {
         return new Vector2(
-            x + rectColision.width / 2f,
-            y + rectColision.height / 2f
+                x + rectColision.width / 2f,
+                y + rectColision.height / 2f
         );
     }
 

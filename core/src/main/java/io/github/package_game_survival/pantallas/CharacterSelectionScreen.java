@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import io.github.package_game_survival.entidades.mapas.EscenarioServidor;
 import io.github.package_game_survival.managers.Assets;
 import io.github.package_game_survival.managers.PathManager;
 import io.github.package_game_survival.network.GameController;
@@ -30,7 +31,8 @@ public class CharacterSelectionScreen implements Screen, GameController {
     public CharacterSelectionScreen(MyGame game) {
         this.game = game;
 
-        serverThread = new ServerThread();
+        EscenarioServidor escenario = new EscenarioServidor();
+        serverThread = new ServerThread(escenario);
         serverThread.start();
 
         stage = new Stage(

@@ -1,107 +1,69 @@
 package io.github.package_game_survival.entidades.mapas;
 
+import com.badlogic.gdx.math.Rectangle;
 import io.github.package_game_survival.entidades.seres.jugadores.JugadorServidor;
-import io.github.package_game_survival.managers.GestorDesastresServidor;
-import io.github.package_game_survival.managers.GestorSpawneoServidor;
 import io.github.package_game_survival.managers.GestorTiempoServidor;
-import io.github.package_game_survival.managers.SpawnData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 
 public class EscenarioServidor {
 
     private final Map<Integer, JugadorServidor> jugadores = new HashMap<>();
+    private final List<Rectangle> bloques = new ArrayList<>();
 
-    private final GestorTiempoServidor gestorTiempo;
-    private final GestorDesastresServidor gestorDesastres;
-    private final GestorSpawneoServidor gestorSpawneo;
+    private final GestorTiempoServidor gestorTiempo = new GestorTiempoServidor();
 
-    private final MundoServidor mundo;
-
-    public EscenarioServidor() {
-        this.gestorTiempo = new GestorTiempoServidor();
-        this.gestorDesastres = new GestorDesastresServidor();
-        this.gestorSpawneo = new GestorSpawneoServidor();
-        this.mundo = new MundoServidor(2000, 2000);
+    // ======================
+    // JUGADORES
+    // ======================
+    public void agregarJugador(JugadorServidor jugador) {
+        jugadores.put(jugador.getId(), jugador);
     }
 
-    public void update(float delta) {
+    public JugadorServidor getJugador(int id) {
+        return jugadores.get(id);
+    }
 
-        // ======================
-        // TIEMPO
-        // ======================
-        gestorTiempo.update(delta);
+    public int getCantidadJugadores() {
+        return jugadores.size();
+    }
 
-        // ======================
-        // JUGADORES + DESASTRES
-        // ======================
-        for (JugadorServidor j : jugadores.values()) {
-            j.update(delta, mundo);
-            gestorDesastres.update(delta, j);
+    // ======================
+    // BLOQUES
+    // ======================
+    public void agregarBloque(Rectangle r) {
+        bloques.add(r);
+    }
+
+    public boolean colisionaConBloque(float x, float y, float w, float h) {
+        Rectangle aux = new Rectangle(x, y, w, h);
+        for (Rectangle b : bloques) {
+            if (b.overlaps(aux)) return true;
         }
-
-        // ======================
-        // SPAWNEO (CORREGIDO)
-        // ======================
-        gestorSpawneo.update(
-            delta,
-            gestorTiempo.getNoche(),
-            mundo.getAncho(),
-            mundo.getAlto(),
-            mundo.getRectangulosNoTransitables()
-        );
-
-        SpawnData spawn = gestorSpawneo.consumirUltimoSpawn();
-        if (spawn != null) {
-            // acá después vas a crear el enemigo real
-            System.out.println("Spawn enemigo: " + spawn.getTipo());
-        }
+        return false;
     }
 
-    public void agregarJugador(int id) {
-        JugadorServidor j = new JugadorServidor(id, 400, 300);
-        jugadores.put(id, j);
-        mundo.setJugador(j);
+    public List<Rectangle> getBloques() {
+        return bloques;
     }
 
-    public void aplicarInput(int id, int dx, int dy) {
-        JugadorServidor j = jugadores.get(id);
-        if (j != null) {
-            j.setInput(dx, dy);
-        }
-    }
-
-    public String generarSnapshot() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("WORLD\n");
-        sb.append("TIME:")
-            .append(gestorTiempo.getDia()).append(":")
-            .append(gestorTiempo.getHora()).append(":")
-            .append(gestorTiempo.getMinuto()).append("\n");
-
-        sb.append("DISASTER:")
-            .append(gestorDesastres.getDesastreActivo()).append("\n");
-
-        for (JugadorServidor j : jugadores.values()) {
-            sb.append("PLAYER:")
-                .append(j.getId()).append(":")
-                .append(String.format(Locale.US, "%.2f", j.getX())).append(":")
-                .append(String.format(Locale.US, "%.2f", j.getY()))
-                .append("\n");
-        }
-
-        sb.append("END");
-        return sb.toString();
-    }
-
-    public Map<Integer, JugadorServidor> getJugadores() {
-        return jugadores;
-    }
-
+    // ======================
+    // TIEMPO
+    // ======================
     public void dormirHastaLaNoche() {
-        gestorTiempo.avanzarHastaLaNoche();
+        gestorTiempo.dormirHastaLaNoche();
+    }
+
+    // ======================
+    // UPDATE
+    // ======================
+    public void update(float delta) {
+        gestorTiempo.update(delta);
+        for (JugadorServidor j : jugadores.values()) {
+            j.update(delta, this);
+        }
     }
 }

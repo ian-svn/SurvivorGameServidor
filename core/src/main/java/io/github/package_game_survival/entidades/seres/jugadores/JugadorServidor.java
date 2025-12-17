@@ -1,79 +1,45 @@
 package io.github.package_game_survival.entidades.seres.jugadores;
 
-import io.github.package_game_survival.entidades.mapas.MundoServidor;
+import io.github.package_game_survival.entidades.mapas.EscenarioServidor;
 import io.github.package_game_survival.entidades.seres.SerVivoServidor;
 
 public class JugadorServidor extends SerVivoServidor {
 
-    private int inputX;
-    private int inputY;
-
-    public JugadorServidor(
-        float x,
-        float y,
-        int vidaMax,
-        int danio,
-        float velocidad,
-        float rangoAtaque,
-        float areaAtaque
-    ) {
-        super(
-            generarId(),
-            "JUGADOR",
-            x,
-            y,
-            vidaMax,
-            velocidad,
-            danio,
-            32f,
-            32f
-        );
-
-        this.rangoAtaque = rangoAtaque;
-        this.areaAtaque = areaAtaque;
-    }
+    private float objetivoX, objetivoY;
+    private boolean moviendose = false;
 
     public JugadorServidor(int id, float x, float y) {
-        this(
-            x, y,          // posición
-            120,           // vidaMax
-            10,            // daño base
-            80f,           // velocidad
-            60f,           // rango ataque
-            40f            // área ataque
-        );
-        this.id = id;
-    }
-
-
-    private static int generarId() {
-        return (int) (System.nanoTime() & 0x7FFFFFFF);
-    }
-
-    public void setInput(int dx, int dy) {
-        inputX = dx;
-        inputY = dy;
+        super(id, "Jugador", x, y, 100, 120f, 10, 32, 32);
     }
 
     @Override
     public void update(float delta, Object mundoObj) {
-        MundoServidor mundo = (MundoServidor) mundoObj;
+        EscenarioServidor mundo = (EscenarioServidor) mundoObj;
 
-        float nx = x + inputX * velocidad * delta;
-        float ny = y + inputY * velocidad * delta;
+        if (!moviendose) return;
 
-        if (!mundo.colisiona(nx, ny, rectColision.width, rectColision.height)) {
+        float dx = objetivoX - x;
+        float dy = objetivoY - y;
+
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        if (dist < 2f) {
+            moviendose = false;
+            return;
+        }
+
+        float nx = x + (dx / dist) * velocidad * delta;
+        float ny = y + (dy / dist) * velocidad * delta;
+
+        if (!mundo.colisionaConBloque(nx, ny, rectColision.width, rectColision.height)) {
             mover(nx, ny);
+        } else {
+            moviendose = false;
         }
     }
 
-    protected boolean sintiendoCalor = false;
-
-    public boolean isSintiendoCalor() {
-        return sintiendoCalor;
-    }
-
-    public void setSintiendoCalor(boolean sintiendoCalor) {
-        this.sintiendoCalor = sintiendoCalor;
+    public void setObjetivo(float x, float y) {
+        this.objetivoX = x;
+        this.objetivoY = y;
+        this.moviendose = true;
     }
 }

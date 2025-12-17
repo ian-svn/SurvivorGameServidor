@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import io.github.package_game_survival.entidades.mapas.Mapa;
 
 public class Assets {
     private static final AssetManager manager = new AssetManager();

@@ -2,64 +2,39 @@ package io.github.package_game_survival.managers;
 
 public class GestorTiempoServidor {
 
-    private int dia = 1;
-    private int hora = 6;
-    private int minuto = 0;
+    // =========================
+    // TIEMPO DEL DIA
+    // =========================
+    private float tiempoDelDia = 8f; // empieza de dia
+    private static final float VELOCIDAD_TIEMPO = 0.1f;
+    private static final float NOCHE = 18f;
 
-    private float acumulador = 0f;
-
-    private static final float SEGUNDOS_POR_MINUTO = 1f;
-
+    // =========================
+    // UPDATE
+    // =========================
     public void update(float delta) {
-        acumulador += delta;
-
-        if (acumulador >= SEGUNDOS_POR_MINUTO) {
-            acumulador -= SEGUNDOS_POR_MINUTO;
-            minuto++;
-
-            if (minuto >= 60) {
-                minuto = 0;
-                hora++;
-
-                if (hora >= 24) {
-                    hora = 0;
-                    dia++;
-                }
-            }
+        tiempoDelDia += delta * VELOCIDAD_TIEMPO;
+        if (tiempoDelDia >= 24f) {
+            tiempoDelDia = 0f;
         }
     }
 
-    // ======================
+    // =========================
+    // ACCIONES
+    // =========================
+    public void dormirHastaLaNoche() {
+        tiempoDelDia = NOCHE;
+        System.out.println("GestorTiempoServidor: dormir hasta la noche");
+    }
+
+    // =========================
     // GETTERS
-    // ======================
-    public int getDia() {
-        return dia;
-    }
-
-    public int getHora() {
-        return hora;
-    }
-
-    public int getMinuto() {
-        return minuto;
-    }
-
-    /**
-     * Noche = número de noches transcurridas
-     * Día 1 noche = noche 1
-     */
-    public int getNoche() {
-        return dia;
+    // =========================
+    public float getTiempoDelDia() {
+        return tiempoDelDia;
     }
 
     public boolean esDeNoche() {
-        return hora >= 20 || hora < 6;
-    }
-
-    public void avanzarHastaLaNoche() {
-        if (hora < 20) {
-            hora = 20;
-            minuto = 0;
-        }
+        return tiempoDelDia >= NOCHE || tiempoDelDia < 6f;
     }
 }
