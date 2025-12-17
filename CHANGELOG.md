@@ -345,3 +345,13 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - Tooltips arreglados para desastres y objetos.
 - Tooltips de enemigos muestran vida en tiempo real.
 - Errores de compilación y dependencias circulares resueltos.
+
+## [1.0.1] - 2025-12-16
+
+## Added
+- Multijugador: Sincronización de movimiento y selección de personajes (UDP).
+- Soporte para iniciar partida desde el Servidor.
+
+## Fixed
+- Red: Solucionado conflicto TCP/UDP y error de compilación en `startGame`.
+- Gráficos: Crash de `FrameBuffer` al minimizar la ventana (BrilloManager).
