@@ -355,3 +355,8 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ## Fixed
 - Red: Solucionado conflicto TCP/UDP y error de compilación en `startGame`.
 - Gráficos: Crash de `FrameBuffer` al minimizar la ventana (BrilloManager).
+- 
+## [1.0.2] - 2025-12-16
+
+## Changed
+- Cambio de arquitectura a arquitectura cliente-servidor con separación de lógica y presentación.
