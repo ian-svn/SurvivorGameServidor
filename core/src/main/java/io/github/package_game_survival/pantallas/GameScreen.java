@@ -46,7 +46,6 @@ public class GameScreen implements Screen {
     private final Escenario escenario;
     private final OrthographicCamera camara;
 
-    // --- INPUT MULTIPLEXER ---
     private final InputMultiplexer inputMultiplexer;
 
     private final Vector3 tempVec = new Vector3();
@@ -139,6 +138,12 @@ public class GameScreen implements Screen {
         if (!juegoTerminado) {
             hud.update(delta);
             hud.draw();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            this.dispose();
+
+            game.setScreen(new MenuScreen(game));
         }
 
         stageUI.act(delta);
